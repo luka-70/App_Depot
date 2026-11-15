@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Coppa del Mondo sci alpino 2026/27 · Orari e TV</title>
+<style>
+:root{
+  --bg:#0d1520;--card:#152233;--card2:#1b2b40;--line:#26394f;--txt:#e9f0f7;--mut:#8ea3b8;
+  --w:#ff5c8a;--m:#4da3ff;--rai:#2fd18b;--warn:#ffb547;--live:#ff4d4d;
+}
+*{box-sizing:border-box}
+body{margin:0;background:linear-gradient(180deg,#0b1a2b 0%,var(--bg) 320px);color:var(--txt);
+  font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+.wrap{max-width:760px;margin:0 auto;padding:16px 14px 40px}
+header h1{font-size:21px;margin:4px 0 2px;letter-spacing:.2px}
+header p{margin:0;color:var(--mut);font-size:13px}
+.next{margin:14px 0;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px}
+.next .lbl{font-size:12px;color:var(--mut);text-transform:uppercase;letter-spacing:.6px}
+.next .what{font-size:17px;font-weight:650;margin:4px 0}
+.next .cd{font-variant-numeric:tabular-nums;font-size:26px;font-weight:700;letter-spacing:.5px}
+.next .live{color:var(--live)}
+.bar{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}
+.chip{border:1px solid var(--line);background:var(--card);color:var(--txt);border-radius:999px;
+  padding:6px 12px;font-size:13px;cursor:pointer;user-select:none}
+.chip.on{background:var(--card2);border-color:#5a7ea6}
+.chip.W.on{border-color:var(--w);color:#ffd2df}
+.chip.M.on{border-color:var(--m);color:#d4e8ff}
+.nav{display:flex;align-items:center;gap:8px;margin:14px 0 6px}
+.nav button{background:var(--card);border:1px solid var(--line);color:var(--txt);border-radius:10px;
+  padding:7px 12px;font-size:14px;cursor:pointer}
+.nav .t{flex:1;text-align:center;font-weight:650}
+.nav .t small{display:block;color:var(--mut);font-weight:400;font-size:12px}
+.day{margin:16px 0 6px;font-size:13px;color:var(--mut);text-transform:uppercase;letter-spacing:.6px}
+.month{margin:22px 0 4px;font-size:16px;font-weight:700;border-bottom:1px solid var(--line);padding-bottom:4px}
+.race{display:flex;gap:12px;background:var(--card);border:1px solid var(--line);border-left:4px solid var(--m);
+  border-radius:12px;padding:11px 12px;margin:7px 0}
+.race.W{border-left-color:var(--w)}
+.race.done{opacity:.5}
+.race.now{box-shadow:0 0 0 2px var(--live) inset}
+.race .time{min-width:58px;font-variant-numeric:tabular-nums;font-weight:700;font-size:17px}
+.race .time small{display:block;font-weight:500;font-size:12px;color:var(--mut)}
+.race .body{flex:1;min-width:0}
+.race .name{font-weight:650}
+.race .loc{color:var(--mut);font-size:13px}
+.tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
+.tag{font-size:11.5px;padding:2px 7px;border-radius:6px;background:#0f1a27;border:1px solid var(--line);color:var(--mut)}
+.tag.g.W{color:var(--w);border-color:#5a2a3b}
+.tag.g.M{color:var(--m);border-color:#24476b}
+.tag.rai{color:var(--rai);border-color:#1f5c43}
+.tag.rai.est{border-style:dashed}
+.tag.night{color:#c9b8ff;border-color:#4a3f7a}
+.tag.fin{color:var(--warn);border-color:#6b4f1f}
+.tag.st{color:var(--live);border-color:#6b2a2a}
+.empty{color:var(--mut);text-align:center;padding:24px 0}
+.wc{background:linear-gradient(90deg,#2a2140,#1b2b40);border:1px solid #4a3f7a;border-radius:12px;padding:12px;margin:8px 0}
+.foot{margin-top:24px;font-size:12.5px;color:var(--mut);border-top:1px solid var(--line);padding-top:12px}
+.foot a{color:#9cc6ff}
+.foot p{margin:6px 0}
+.tools{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+.tools button{background:var(--card);border:1px solid var(--line);color:var(--txt);border-radius:10px;padding:7px 12px;font-size:13px;cursor:pointer}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1>⛷️ Coppa del Mondo di sci alpino 2026/27</h1>
+  <p>Orari italiani e diretta TV · uomini e donne · da Sölden alle finali di Sun Valley</p>
+</header>
+
+<div class="next" id="next"></div>
+
+<div class="bar" id="fG">
+  <span class="chip W" data-g="W">Donne</span>
+  <span class="chip M" data-g="M">Uomini</span>
+</div>
+<div class="bar" id="fS">
+  <span class="chip" data-s="DH">Discesa</span>
+  <span class="chip" data-s="SG">Super-G</span>
+  <span class="chip" data-s="GS">Gigante</span>
+  <span class="chip" data-s="SL">Slalom</span>
+  <span class="chip" data-s="IT" title="Solo gare in Italia">🇮🇹 In Italia</span>
+</div>
+<div class="bar" id="fV">
+  <span class="chip" data-v="week">Settimana</span>
+  <span class="chip" data-v="season">Tutta la stagione</span>
+</div>
+
+<div class="nav" id="nav">
+  <button id="prev" aria-label="Settimana precedente">◀</button>
+  <div class="t" id="navT"></div>
+  <button id="next7" aria-label="Settimana successiva">▶</button>
+  <button id="today">Oggi</button>
+</div>
+
+<div id="list"></div>
+
+<div class="foot">
+  <div class="tools">
+    <button id="ics">📅 Esporta nel calendario (.ics)</button>
+  </div>
+  <p><b>TV in chiaro:</b> tutte le gare sono trasmesse dalla Rai, su <b>Rai 2</b> o <b>Rai Sport HD</b> (canale 58 DTT, 227 Sky) a seconda del palinsesto, e in streaming su RaiPlay. A pagamento su <b>Eurosport 1</b> (anche via discovery+, HBO Max, DAZN, Sky Go/NOW).</p>
+  <p><b>Bordo tratteggiato = canale da confermare.</b> La Rai decide tra Rai 2 e Rai Sport pochi giorni prima: l'etichetta indica il canale più probabile.</p>
+  <p><b>"orario indicativo"</b>: la FIS conferma gli orari ufficiali circa una settimana prima. Fino ad allora l'app usa gli orari abituali di ogni pista. Le gare veloci (discesa, super-G) hanno una manche sola, le tecniche due.</p>
+  <p>Fonti (14/11/2026): <a href="https://www.centrometeoitaliano.it/sport-vari/coppa-del-mondo-di-sci-alpino-femminile-e-maschile-calendario-gare-e-dove-vederle-in-tv-184410/" target="_blank" rel="noopener">calendario (Centro Meteo Italiano / OA Sport)</a>, <a href="https://www.oasport.it/2026/11/coppa-del-mondo-sci-alpino-levi-2026-orari-tv-streaming-programma-slalom/" target="_blank" rel="noopener">OA Sport – Levi</a>, <a href="https://planetski.eu/2026/05/11/provisional-calendar-for-2026-27-alpine-ski-racing-unveiled/" target="_blank" rel="noopener">PlanetSKI</a>, <a href="https://www.fis-ski.com/DB/alpine-skiing/calendar-results.html" target="_blank" rel="noopener">calendario ufficiale FIS</a>.</p>
+  <p id="upd"></p>
+</div>
+</div>
+
+<script>
+/* ================= DATI =================
+   Orari in ora italiana. g: W=donne, M=uomini. sp: DH SG GS SL.
+   r1/r2 = prima/seconda manche (r2 solo per gigante e slalom).
+   ok:1 = orario confermato. tv: canale Rai più probabile; tvok:1 = confermato.
+   Per aggiornare: modifica la riga della gara e metti ok:1 / tvok:1.        */
+const ED = "14/11/2026";
+const R = [
+ // OTTOBRE
+ {g:"W",d:"2026-10-24",l:"Sölden",n:"AUT",sp:"GS",r1:"10:00",r2:"13:00",ok:1,tv:"Rai 2",tvok:1},
+ {g:"M",d:"2026-10-25",l:"Sölden",n:"AUT",sp:"GS",r1:"10:00",r2:"13:00",ok:1,tv:"Rai 2",tvok:1},
+ // NOVEMBRE
+ {g:"W",d:"2026-11-14",l:"Levi",n:"FIN",sp:"SL",r1:"10:00",r2:"13:00",ok:1,tv:"Rai 2 o Rai Sport"},
+ {g:"M",d:"2026-11-15",l:"Levi",n:"FIN",sp:"SL",r1:"10:00",r2:"13:00",ok:1,tv:"Rai 2 o Rai Sport"},
+ {g:"W",d:"2026-11-21",l:"Gurgl",n:"AUT",sp:"SL",r1:"10:30",r2:"13:30",tv:"Rai Sport"},
+ {g:"M",d:"2026-11-22",l:"Gurgl",n:"AUT",sp:"SL",r1:"10:30",r2:"13:30",tv:"Rai Sport"},
+ {g:"W",d:"2026-11-28",l:"Killington",n:"USA",sp:"GS",r1:"16:00",r2:"19:00",tv:"Rai Sport"},
+ {g:"M",d:"2026-11-28",l:"Copper Mountain",n:"USA",sp:"SG",r1:"19:00",tv:"Rai Sport"},
+ {g:"W",d:"2026-11-29",l:"Killington",n:"USA",sp:"SL",r1:"16:00",r2:"19:00",tv:"Rai Sport"},
+ {g:"M",d:"2026-11-29",l:"Copper Mountain",n:"USA",sp:"GS",r1:"17:30",r2:"20:30",tv:"Rai Sport"},
+ // DICEMBRE
+ {g:"M",d:"2026-12-03",l:"Beaver Creek",n:"USA",sp:"DH",r1:"19:00",tv:"Rai Sport"},
+ {g:"M",d:"2026-12-04",l:"Beaver Creek",n:"USA",sp:"DH",r1:"19:00",tv:"Rai Sport"},
+ {g:"M",d:"2026-12-05",l:"Beaver Creek",n:"USA",sp:"SG",r1:"19:00",tv:"Rai Sport"},
+ {g:"W",d:"2026-12-05",l:"Tremblant",n:"CAN",sp:"GS",r1:"16:00",r2:"19:00",tv:"Rai Sport"},
+ {g:"M",d:"2026-12-06",l:"Beaver Creek",n:"USA",sp:"GS",r1:"18:00",r2:"21:00",tv:"Rai Sport"},
+ {g:"W",d:"2026-12-06",l:"Tremblant",n:"CAN",sp:"GS",r1:"16:00",r2:"19:00",tv:"Rai Sport"},
+ {g:"W",d:"2026-12-11",l:"Beaver Creek",n:"USA",sp:"DH",r1:"19:00",tv:"Rai Sport"},
+ {g:"W",d:"2026-12-12",l:"Beaver Creek",n:"USA",sp:"DH",r1:"19:00",tv:"Rai Sport"},
+ {g:"M",d:"2026-12-12",l:"Val d'Isère",n:"FRA",sp:"GS",r1:"09:30",r2:"13:00",tv:"Rai 2"},
+ {g:"W",d:"2026-12-13",l:"Beaver Creek",n:"USA",sp:"SG",r1:"19:00",tv:"Rai Sport"},
+ {g:"M",d:"2026-12-13",l:"Val d'Isère",n:"FRA",sp:"SL",r1:"09:30",r2:"12:30",tv:"Rai 2"},
+ {g:"M",d:"2026-12-18",l:"Val Gardena",n:"ITA",sp:"SG",r1:"11:45",tv:"Rai 2"},
+ {g:"W",d:"2026-12-18",l:"St. Moritz",n:"SUI",sp:"SG",r1:"10:30",tv:"Rai Sport"},
+ {g:"M",d:"2026-12-19",l:"Val Gardena",n:"ITA",sp:"DH",r1:"11:45",tv:"Rai 2"},
+ {g:"W",d:"2026-12-19",l:"St. Moritz",n:"SUI",sp:"SG",r1:"10:30",tv:"Rai Sport"},
+ {g:"M",d:"2026-12-20",l:"Alta Badia",n:"ITA",sp:"GS",r1:"10:00",r2:"13:30",tv:"Rai 2"},
+ {g:"W",d:"2026-12-20",l:"St. Moritz",n:"SUI",sp:"GS",r1:"09:30",r2:"12:30",tv:"Rai Sport"},
+ {g:"M",d:"2026-12-21",l:"Alta Badia",n:"ITA",sp:"SL",r1:"18:00",r2:"21:00",night:1,tv:"Rai 2"},
+ {g:"W",d:"2026-12-22",l:"Courchevel",n:"FRA",sp:"SL",r1:"10:30",r2:"13:30",tv:"Rai Sport"},
+ {g:"M",d:"2026-12-23",l:"Madonna di Campiglio",n:"ITA",sp:"SL",r1:"17:45",r2:"20:45",night:1,tv:"Rai 2"},
+ {g:"M",d:"2026-12-28",l:"Bormio",n:"ITA",sp:"DH",r1:"11:30",tv:"Rai 2"},
+ {g:"W",d:"2026-12-28",l:"Gosau",n:"AUT",sp:"GS",r1:"10:00",r2:"13:00",tv:"Rai Sport"},
+ {g:"M",d:"2026-12-29",l:"Bormio",n:"ITA",sp:"SG",r1:"11:30",tv:"Rai 2"},
+ {g:"W",d:"2026-12-29",l:"Gosau",n:"AUT",sp:"SL",r1:"10:00",r2:"13:00",tv:"Rai Sport"},
+ // GENNAIO
+ {g:"M",d:"2027-01-02",l:"Kranjska Gora",n:"SLO",sp:"GS",r1:"09:30",r2:"12:30",tv:"Rai 2"},
+ {g:"M",d:"2027-01-03",l:"Kranjska Gora",n:"SLO",sp:"SL",r1:"09:30",r2:"12:30",tv:"Rai 2"},
+ {g:"W",d:"2027-01-04",l:"Flachau",n:"AUT",sp:"GS",r1:"15:00",r2:"18:00",night:1,tv:"Rai Sport"},
+ {g:"W",d:"2027-01-05",l:"Flachau",n:"AUT",sp:"SL",r1:"17:45",r2:"20:45",night:1,tv:"Rai Sport"},
+ {g:"W",d:"2027-01-09",l:"Val di Fassa",n:"ITA",sp:"DH",r1:"11:00",tv:"Rai 2"},
+ {g:"M",d:"2027-01-09",l:"Adelboden",n:"SUI",sp:"GS",r1:"10:30",r2:"13:30",tv:"Rai Sport"},
+ {g:"W",d:"2027-01-10",l:"Val di Fassa",n:"ITA",sp:"SG",r1:"11:00",tv:"Rai 2"},
+ {g:"M",d:"2027-01-10",l:"Adelboden",n:"SUI",sp:"SL",r1:"10:30",r2:"13:30",tv:"Rai Sport"},
+ {g:"W",d:"2027-01-15",l:"Cortina d'Ampezzo",n:"ITA",sp:"DH",r1:"11:00",tv:"Rai 2"},
+ {g:"M",d:"2027-01-15",l:"Wengen",n:"SUI",sp:"SG",r1:"12:30",tv:"Rai Sport"},
+ {g:"W",d:"2027-01-16",l:"Cortina d'Ampezzo",n:"ITA",sp:"DH",r1:"10:30",tv:"Rai 2"},
+ {g:"M",d:"2027-01-16",l:"Wengen",n:"SUI",sp:"DH",r1:"12:30",tv:"Rai 2"},
+ {g:"W",d:"2027-01-17",l:"Cortina d'Ampezzo",n:"ITA",sp:"SG",r1:"11:00",tv:"Rai 2"},
+ {g:"M",d:"2027-01-17",l:"Wengen",n:"SUI",sp:"SL",r1:"10:15",r2:"13:15",tv:"Rai Sport"},
+ {g:"W",d:"2027-01-19",l:"Plan de Corones",n:"ITA",sp:"GS",r1:"10:00",r2:"13:00",tv:"Rai 2"},
+ {g:"M",d:"2027-01-22",l:"Kitzbühel",n:"AUT",sp:"SG",r1:"11:30",tv:"Rai 2"},
+ {g:"W",d:"2027-01-23",l:"Jasná",n:"SVK",sp:"GS",r1:"09:30",r2:"12:30",tv:"Rai Sport"},
+ {g:"M",d:"2027-01-23",l:"Kitzbühel",n:"AUT",sp:"DH",r1:"11:30",tv:"Rai 2"},
+ {g:"W",d:"2027-01-24",l:"Jasná",n:"SVK",sp:"SL",r1:"09:30",r2:"12:30",tv:"Rai Sport"},
+ {g:"M",d:"2027-01-24",l:"Kitzbühel",n:"AUT",sp:"SL",r1:"10:30",r2:"13:30",tv:"Rai 2"},
+ {g:"M",d:"2027-01-26",l:"Schladming",n:"AUT",sp:"GS",r1:"17:45",r2:"20:45",night:1,tv:"Rai Sport"},
+ {g:"M",d:"2027-01-27",l:"Schladming",n:"AUT",sp:"SL",r1:"17:45",r2:"20:45",night:1,tv:"Rai Sport"},
+ {g:"W",d:"2027-01-29",l:"Kranjska Gora",n:"SLO",sp:"GS",r1:"09:30",r2:"12:30",tv:"Rai Sport"},
+ {g:"W",d:"2027-01-30",l:"Kranjska Gora",n:"SLO",sp:"SL",r1:"09:30",r2:"12:30",tv:"Rai Sport"},
+ {g:"M",d:"2027-01-30",l:"Chamonix",n:"FRA",sp:"SL",r1:"10:00",r2:"13:00",tv:"Rai 2"},
+ // FEBBRAIO (1-14 Mondiali di Crans-Montana)
+ {g:"W",d:"2027-02-20",l:"Lenzerheide",n:"SUI",sp:"SG",r1:"10:30",tv:"Rai Sport"},
+ {g:"M",d:"2027-02-20",l:"Garmisch-Partenkirchen",n:"GER",sp:"DH",r1:"11:30",tv:"Rai 2"},
+ {g:"W",d:"2027-02-21",l:"Lenzerheide",n:"SUI",sp:"SG",r1:"10:30",tv:"Rai Sport"},
+ {g:"M",d:"2027-02-21",l:"Garmisch-Partenkirchen",n:"GER",sp:"SG",r1:"11:30",tv:"Rai 2"},
+ {g:"W",d:"2027-02-27",l:"Garmisch-Partenkirchen",n:"GER",sp:"DH",r1:"11:30",tv:"Rai 2"},
+ {g:"M",d:"2027-02-27",l:"Saalbach",n:"AUT",sp:"DH",r1:"11:00",tv:"Rai Sport"},
+ {g:"W",d:"2027-02-28",l:"Garmisch-Partenkirchen",n:"GER",sp:"DH",r1:"11:30",tv:"Rai 2"},
+ {g:"M",d:"2027-02-28",l:"Saalbach",n:"AUT",sp:"SG",r1:"11:00",tv:"Rai Sport"},
+ // MARZO
+ {g:"W",d:"2027-03-06",l:"Soldeu",n:"AND",sp:"GS",r1:"10:00",r2:"13:00",tv:"Rai Sport"},
+ {g:"M",d:"2027-03-06",l:"Kvitfjell",n:"NOR",sp:"DH",r1:"11:00",tv:"Rai 2"},
+ {g:"W",d:"2027-03-07",l:"Soldeu",n:"AND",sp:"SL",r1:"10:00",r2:"13:00",tv:"Rai Sport"},
+ {g:"M",d:"2027-03-07",l:"Kvitfjell",n:"NOR",sp:"SG",r1:"11:00",tv:"Rai 2"},
+ {g:"W",d:"2027-03-12",l:"Narvik",n:"NOR",sp:"DH",r1:"11:00",tv:"Rai Sport"},
+ {g:"W",d:"2027-03-13",l:"Narvik",n:"NOR",sp:"SG",r1:"11:00",tv:"Rai Sport"},
+ {g:"M",d:"2027-03-13",l:"Åre",n:"SWE",sp:"GS",r1:"10:00",r2:"13:00",tv:"Rai 2"},
+ {g:"M",d:"2027-03-14",l:"Åre",n:"SWE",sp:"SL",r1:"10:00",r2:"13:00",tv:"Rai 2"},
+ {g:"W",d:"2027-03-20",l:"Sun Valley",n:"USA",sp:"DH",r1:"18:00",fin:1,tv:"Rai Sport"},
+ {g:"M",d:"2027-03-20",l:"Sun Valley",n:"USA",sp:"DH",r1:"20:00",fin:1,tv:"Rai Sport"},
+ {g:"W",d:"2027-03-21",l:"Sun Valley",n:"USA",sp:"SG",r1:"18:00",fin:1,tv:"Rai Sport"},
+ {g:"M",d:"2027-03-21",l:"Sun Valley",n:"USA",sp:"SG",r1:"20:00",fin:1,tv:"Rai Sport"},
+ {g:"W",d:"2027-03-23",l:"Sun Valley",n:"USA",sp:"GS",r1:"17:00",r2:"20:00",fin:1,tv:"Rai Sport"},
+ {g:"M",d:"2027-03-24",l:"Sun Valley",n:"USA",sp:"GS",r1:"17:00",r2:"20:00",fin:1,tv:"Rai Sport"},
+ {g:"W",d:"2027-03-25",l:"Sun Valley",n:"USA",sp:"SL",r1:"17:00",r2:"20:00",fin:1,tv:"Rai Sport"},
+ {g:"M",d:"2027-03-25",l:"Sun Valley",n:"USA",sp:"SL",r1:"18:30",r2:"21:30",fin:1,tv:"Rai Sport"}
+];
+const WORLDS = {from:"2027-02-01",to:"2027-02-14",txt:"Mondiali di Crans-Montana (Svizzera)",sub:"Tutte le discipline, uomini e donne · diretta Rai. La Coppa del Mondo si ferma."};
+
+const SPN = {DH:"Discesa libera",SG:"Super-G",GS:"Slalom gigante",SL:"Slalom"};
+const FLAG = {AUT:"🇦🇹",FIN:"🇫🇮",USA:"🇺🇸",CAN:"🇨🇦",FRA:"🇫🇷",ITA:"🇮🇹",SUI:"🇨🇭",SLO:"🇸🇮",SVK:"🇸🇰",GER:"🇩🇪",AND:"🇦🇩",NOR:"🇳🇴",SWE:"🇸🇪"};
+const GN = {W:"Donne",M:"Uomini"};
+const MESI = ["gennaio","febbraio","marzo","aprile","maggio","giugno","luglio","agosto","settembre","ottobre","novembre","dicembre"];
+const GIORNI = ["Domenica","Lunedì","Martedì","Mercoledì","Giovedì","Venerdì","Sabato"];
+
+/* ---- fuso orario Italia: ora legale fino al 25/10/2026 03:00 e dal 28/03/2027 ---- */
+function off(d,t){const k=d+"T"+t; return (k<"2026-10-25T03:00"||k>="2027-03-28T02:00")?"+02:00":"+01:00";}
+function at(d,t){return new Date(d+"T"+t+":00"+off(d,t));}
+R.forEach((r,i)=>{
+  r.id=i; r.start=at(r.d,r.r1);
+  const last = r.r2?at(r.d,r.r2):r.start;
+  r.end = new Date(last.getTime() + (r.r2?75:100)*60000);
+});
+
+/* ---- preferenze ---- */
+let st={g:{W:1,M:1},s:{DH:0,SG:0,GS:0,SL:0,IT:0},v:"week"};
+try{const p=JSON.parse(localStorage.getItem("sci-wc-prefs")||"null"); if(p){st.g=Object.assign(st.g,p.g||{});st.s=Object.assign(st.s,p.s||{});st.v=p.v||st.v;}}catch(e){}
+function save(){try{localStorage.setItem("sci-wc-prefs",JSON.stringify(st));}catch(e){}}
+
+function visible(r){
+  if(!st.g[r.g]) return false;
+  const anyS=["DH","SG","GS","SL"].some(k=>st.s[k]);
+  if(anyS && !st.s[r.sp]) return false;
+  if(st.s.IT && r.n!=="ITA") return false;
+  return true;
+}
+
+/* ---- settimane (lun-dom) ---- */
+function monday(date){const d=new Date(date.getFullYear(),date.getMonth(),date.getDate()); const w=(d.getDay()+6)%7; d.setDate(d.getDate()-w); return d;}
+function ymd(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");}
+function dObj(s){const [y,m,dd]=s.split("-").map(Number); return new Date(y,m-1,dd);}
+function weekKey(s){return ymd(monday(dObj(s)));}
+function weeksWithRaces(){const set=new Set(R.filter(visible).map(r=>weekKey(r.d))); return [...set].sort();}
+let curWeek=null;
+function defaultWeek(){
+  const ws=weeksWithRaces(); const now=new Date(); const wk=ymd(monday(now));
+  const nextR=R.filter(visible).find(r=>r.end>now);
+  if(ws.includes(wk) && R.filter(visible).some(r=>weekKey(r.d)===wk && r.end>now)) return wk;
+  return nextR?weekKey(nextR.d):(ws[ws.length-1]||wk);
+}
+
+function fmtDay(s){const d=dObj(s); return GIORNI[d.getDay()]+" "+d.getDate()+" "+MESI[d.getMonth()];}
+function status(r,now){ if(now>=r.end) return "done"; if(now>=r.start) return "now"; return ""; }
+
+function raceHTML(r,now){
+  const s=status(r,now);
+  const t2 = r.r2?`<small>2ª ${r.r2}</small>`:`<small>gara unica</small>`;
+  const tags=[];
+  tags.push(`<span class="tag g ${r.g}">${GN[r.g]}</span>`);
+  tags.push(`<span class="tag rai ${r.tvok?"":"est"}" title="${r.tvok?"Canale confermato":"Canale da confermare"}">📺 ${r.tv}${r.tvok?"":" ?"}</span>`);
+  tags.push(`<span class="tag">Eurosport 1</span>`);
+  if(r.night) tags.push(`<span class="tag night">🌙 notturna</span>`);
+  if(r.fin) tags.push(`<span class="tag fin">🏆 Finali</span>`);
+  if(!r.ok) tags.push(`<span class="tag">orario indicativo</span>`);
+  if(s==="now") tags.push(`<span class="tag st">● IN CORSO</span>`);
+  if(s==="done") tags.push(`<span class="tag">conclusa</span>`);
+  return `<div class="race ${r.g} ${s}">
+    <div class="time">${r.r1}${t2}</div>
+    <div class="body"><div class="name">${SPN[r.sp]} ${r.g==="W"?"femminile":"maschile"}</div>
+    <div class="loc">${FLAG[r.n]||""} ${r.l} (${r.n})</div>
+    <div class="tags">${tags.join("")}</div></div></div>`;
+}
+
+function worldsHTML(){return `<div class="wc"><b>🌍 ${WORLDS.txt}</b><br><span style="color:var(--mut);font-size:13px">1–14 febbraio 2027 · ${WORLDS.sub}</span></div>`;}
+
+function render(){
+  const now=new Date();
+  // chip
+  document.querySelectorAll("#fG .chip").forEach(c=>c.classList.toggle("on",!!st.g[c.dataset.g]));
+  document.querySelectorAll("#fS .chip").forEach(c=>c.classList.toggle("on",!!st.s[c.dataset.s]));
+  document.querySelectorAll("#fV .chip").forEach(c=>c.classList.toggle("on",st.v===c.dataset.v));
+  document.getElementById("nav").style.display = st.v==="week"?"flex":"none";
+  renderNext(now);
+  const list=document.getElementById("list"); const vis=R.filter(visible);
+  if(!vis.length){list.innerHTML=`<div class="empty">Nessuna gara con questi filtri.</div>`;return;}
+  let h="";
+  if(st.v==="week"){
+    const ws=weeksWithRaces();
+    if(!curWeek||!ws.includes(curWeek)) curWeek=defaultWeek();
+    const mon=dObj(curWeek); const sun=new Date(mon); sun.setDate(sun.getDate()+6);
+    const rs=vis.filter(r=>weekKey(r.d)===curWeek).sort((a,b)=>a.start-b.start);
+    const places=[...new Set(rs.map(r=>r.l))].join(" · ");
+    document.getElementById("navT").innerHTML=`${mon.getDate()} ${MESI[mon.getMonth()].slice(0,3)} – ${sun.getDate()} ${MESI[sun.getMonth()].slice(0,3)} ${sun.getFullYear()}<small>${places}</small>`;
+    const i=ws.indexOf(curWeek);
+    document.getElementById("prev").disabled=i<=0; document.getElementById("next7").disabled=i>=ws.length-1;
+    if(curWeek<=WORLDS.to && ymd(sun)>=WORLDS.from) h+=worldsHTML();
+    let lastD="";
+    rs.forEach(r=>{ if(r.d!==lastD){h+=`<div class="day">${fmtDay(r.d)}</div>`; lastD=r.d;} h+=raceHTML(r,now); });
+  } else {
+    let lastM="", lastD="", wcDone=false;
+    vis.slice().sort((a,b)=>a.start-b.start).forEach(r=>{
+      const m=r.d.slice(0,7);
+      if(!wcDone && r.d>WORLDS.to){h+=`<div class="month">Febbraio 2027</div>`+worldsHTML(); wcDone=true; lastM="2027-02";}
+      if(m!==lastM){const d=dObj(r.d); h+=`<div class="month">${MESI[d.getMonth()][0].toUpperCase()+MESI[d.getMonth()].slice(1)} ${d.getFullYear()}</div>`; lastM=m;}
+      if(r.d!==lastD){h+=`<div class="day">${fmtDay(r.d)}</div>`; lastD=r.d;}
+      h+=raceHTML(r,now);
+    });
+  }
+  list.innerHTML=h;
+  if(st.v==="season"){const el=document.querySelector(".race.now")||document.querySelector(".race:not(.done)"); if(el && !render.scrolled){render.scrolled=1; el.scrollIntoView({block:"center"});}}
+}
+
+function renderNext(now){
+  const box=document.getElementById("next"); const vis=R.filter(visible).sort((a,b)=>a.start-b.start);
+  const live=vis.filter(r=>now>=r.start&&now<r.end);
+  const nx=vis.find(r=>r.start>now);
+  let h="";
+  if(live.length){
+    h+=`<div class="lbl live">● In corso ora</div>`;
+    live.forEach(r=>{
+      let man="";
+      if(r.r2){ const s2=at(r.d,r.r2); man = now<s2?` · 2ª manche alle ${r.r2}`:" · 2ª manche"; }
+      h+=`<div class="what">${SPN[r.sp]} ${r.g==="W"?"F":"M"} · ${r.l}${man}</div><div style="color:var(--rai);font-size:13px">📺 ${r.tv} · Eurosport 1 · RaiPlay</div>`;
+    });
+    if(nx) h+=`<div style="margin-top:8px;color:var(--mut);font-size:13px">Poi: ${SPN[nx.sp]} ${nx.g==="W"?"F":"M"} · ${nx.l}, ${fmtDay(nx.d).toLowerCase()} alle ${nx.r1}</div>`;
+  } else if(nx){
+    const ms=nx.start-now; const dd=Math.floor(ms/864e5), hh=Math.floor(ms%864e5/36e5), mm=Math.floor(ms%36e5/6e4), ss=Math.floor(ms%6e4/1e3);
+    const cd=(dd?dd+"g ":"")+String(hh).padStart(2,"0")+":"+String(mm).padStart(2,"0")+":"+String(ss).padStart(2,"0");
+    h+=`<div class="lbl">Prossima gara</div><div class="what">${FLAG[nx.n]||""} ${SPN[nx.sp]} ${nx.g==="W"?"femminile":"maschile"} · ${nx.l}</div>
+      <div style="color:var(--mut);font-size:13px;margin-bottom:6px">${fmtDay(nx.d)} · ${nx.r1}${nx.r2?" / "+nx.r2:""} · 📺 ${nx.tv}${nx.tvok?"":" (da confermare)"}</div>
+      <div class="cd">${cd}</div>`;
+  } else h=`<div class="lbl">Stagione conclusa</div><div class="what">Arrivederci alla Coppa del Mondo 2027/28</div>`;
+  box.innerHTML=h;
+}
+
+/* ---- eventi ---- */
+document.getElementById("fG").onclick=e=>{const c=e.target.closest(".chip");if(!c)return;const g=c.dataset.g; st.g[g]=st.g[g]?0:1; if(!st.g.W&&!st.g.M) st.g[g==="W"?"M":"W"]=1; save();render();};
+document.getElementById("fS").onclick=e=>{const c=e.target.closest(".chip");if(!c)return;st.s[c.dataset.s]=st.s[c.dataset.s]?0:1;save();render();};
+document.getElementById("fV").onclick=e=>{const c=e.target.closest(".chip");if(!c)return;st.v=c.dataset.v;render.scrolled=0;save();render();};
+document.getElementById("prev").onclick=()=>{const ws=weeksWithRaces();const i=ws.indexOf(curWeek);if(i>0){curWeek=ws[i-1];render();}};
+document.getElementById("next7").onclick=()=>{const ws=weeksWithRaces();const i=ws.indexOf(curWeek);if(i<ws.length-1){curWeek=ws[i+1];render();}};
+document.getElementById("today").onclick=()=>{curWeek=defaultWeek();render();};
+
+/* ---- esporta .ics (gare future con i filtri attivi) ---- */
+document.getElementById("ics").onclick=()=>{
+  const now=new Date(); const z=d=>d.toISOString().replace(/[-:]/g,"").replace(/\.\d{3}/,"");
+  let s="BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//sci-wc//IT\r\nCALSCALE:GREGORIAN\r\n";
+  R.filter(visible).filter(r=>r.end>now).forEach(r=>{
+    s+="BEGIN:VEVENT\r\nUID:sciwc-"+r.d+"-"+r.g+"-"+r.sp+"@app\r\nDTSTAMP:"+z(now)+"\r\nDTSTART:"+z(r.start)+"\r\nDTEND:"+z(r.end)+"\r\n";
+    s+="SUMMARY:"+SPN[r.sp]+" "+(r.g==="W"?"F":"M")+" "+r.l+"\r\n";
+    s+="DESCRIPTION:"+(r.r2?"1ª manche "+r.r1+" - 2ª manche "+r.r2:"Gara unica "+r.r1)+" · TV: "+r.tv+" / Eurosport 1"+(r.ok?"":" · orario indicativo")+"\r\nEND:VEVENT\r\n";
+  });
+  s+="END:VCALENDAR\r\n";
+  const a=document.createElement("a"); a.href=URL.createObjectURL(new Blob([s],{type:"text/calendar"})); a.download="coppa-del-mondo-sci-2026-27.ics"; document.body.appendChild(a); a.click(); a.remove();
+};
+
+document.getElementById("upd").textContent="Dati aggiornati al "+ED+". "+R.length+" gare (" + R.filter(r=>r.g==="M").length + " maschili, " + R.filter(r=>r.g==="W").length + " femminili).";
+render();
+setInterval(()=>render(),1000*30);
+setInterval(()=>renderNext(new Date()),1000);
+</script>
+</body>
+</html>
