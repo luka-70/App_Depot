@@ -120,7 +120,7 @@ footer a{color:inherit}
   <footer>
     <div>Tutti gli orari sono italiani. Orario ufficiale = diretta Sky Sport / NOW. TV8 = canale 8 DTT, 125 Sky, anche su tv8.it.</div>
     <div>Pillola arancio piena: orario TV8 confermato dai giornali. Pillola tratteggiata: orario TV8 stimato in base alle abitudini del canale, da verificare sulla guida TV.</div>
-    <div>Dati automatici: Formula 1 da <a href="https://api.jolpi.ca/" target="_blank" rel="noopener">Jolpica F1 API</a>, MotoGP dal servizio risultati di <a href="https://www.motogp.com/" target="_blank" rel="noopener">motogp.com</a>.</div>
+    <div>Dati automatici: Formula 1 da <a href="https://api.jolpi.ca/" target="_blank" rel="noopener">Jolpica F1 API</a>, MotoGP dal palinsesto ufficiale di <a href="https://www.motogp.com/" target="_blank" rel="noopener">motogp.com</a>, letto ogni 6 ore da un'automazione su GitHub.</div>
   </footer>
 </div>
 
@@ -183,7 +183,27 @@ const FALLBACK = [
   ["motogp","GP del Qatar","Lusail International Circuit","2026-11-07","17:00","SPR"],
   ["motogp","GP del Qatar","Lusail International Circuit","2026-11-08","14:00","M3RACE"],
   ["motogp","GP del Qatar","Lusail International Circuit","2026-11-08","15:15","M2RACE"],
-  ["motogp","GP del Qatar","Lusail International Circuit","2026-11-08","17:00","RACE"]
+  ["motogp","GP del Qatar","Lusail International Circuit","2026-11-08","17:00","RACE"],
+  ["motogp","GP del Portogallo","Autódromo Internacional do Algarve","2026-11-20","11:45","FP1"],
+  ["motogp","GP del Portogallo","Autódromo Internacional do Algarve","2026-11-20","16:00","PR"],
+  ["motogp","GP del Portogallo","Autódromo Internacional do Algarve","2026-11-21","11:10","FP2"],
+  ["motogp","GP del Portogallo","Autódromo Internacional do Algarve","2026-11-21","11:50","Q1"],
+  ["motogp","GP del Portogallo","Autódromo Internacional do Algarve","2026-11-21","12:15","Q2"],
+  ["motogp","GP del Portogallo","Autódromo Internacional do Algarve","2026-11-21","16:00","SPR"],
+  ["motogp","GP del Portogallo","Autódromo Internacional do Algarve","2026-11-22","10:00","WUP"],
+  ["motogp","GP del Portogallo","Autódromo Internacional do Algarve","2026-11-22","11:00","M3RACE"],
+  ["motogp","GP del Portogallo","Autódromo Internacional do Algarve","2026-11-22","12:15","M2RACE"],
+  ["motogp","GP del Portogallo","Autódromo Internacional do Algarve","2026-11-22","14:00","RACE"],
+  ["motogp","GP di Valencia","Circuit Ricardo Tormo","2026-11-27","10:45","FP1"],
+  ["motogp","GP di Valencia","Circuit Ricardo Tormo","2026-11-27","15:00","PR"],
+  ["motogp","GP di Valencia","Circuit Ricardo Tormo","2026-11-28","10:10","FP2"],
+  ["motogp","GP di Valencia","Circuit Ricardo Tormo","2026-11-28","10:50","Q1"],
+  ["motogp","GP di Valencia","Circuit Ricardo Tormo","2026-11-28","11:15","Q2"],
+  ["motogp","GP di Valencia","Circuit Ricardo Tormo","2026-11-28","15:00","SPR"],
+  ["motogp","GP di Valencia","Circuit Ricardo Tormo","2026-11-29","09:40","WUP"],
+  ["motogp","GP di Valencia","Circuit Ricardo Tormo","2026-11-29","11:00","M3RACE"],
+  ["motogp","GP di Valencia","Circuit Ricardo Tormo","2026-11-29","12:15","M2RACE"],
+  ["motogp","GP di Valencia","Circuit Ricardo Tormo","2026-11-29","14:00","RACE"]
 ];
 
 /* ---------- etichette ---------- */
@@ -215,7 +235,7 @@ function baseThursday(){const r=rome(new Date());const w=new Date(r.date+"T12:00
 let on={f1:true,motogp:true,sbk:true},onlyTv8=false,weekOffset=0;
 try{const p=JSON.parse(localStorage.getItem("wip-prefs")||"null");if(p){on=Object.assign(on,p.on||{});onlyTv8=!!p.onlyTv8;}}catch(e){}
 function savePrefs(){try{localStorage.setItem("wip-prefs",JSON.stringify({on,onlyTv8}))}catch(e){}}
-const data={f1:{sessions:null,src:"",when:null},motogp:{events:null,sessions:{},src:"",when:null,err:false}};
+const data={f1:{sessions:null,src:"",when:null},motogp:{events:null,list:null,src:"",when:null,err:false}};
 
 /* ---------- utilità rete/cache ---------- */
 async function getJSON(url){const ctl=new AbortController();const t=setTimeout(()=>ctl.abort(),12000);
@@ -253,66 +273,48 @@ async function loadF1(force){
   }
 }
 
-/* ---------- MotoGP (servizio risultati motogp.com) ---------- */
-const MB="https://api.motogp.pulselive.com/motogp/v1/results";
+/* ---------- MotoGP ----------
+   Il servizio di motogp.com non accetta richieste dirette dai browser (CORS).
+   Un'automazione su GitHub (.github/workflows/motogp.yml) lo legge ogni 6 ore
+   e salva gli orari in motogp.json, nella stessa cartella di questa pagina. */
+const MGP_SOURCES=[
+  "motogp.json",                                                                    // sul sito (GitHub Pages)
+  "https://raw.githubusercontent.com/luka-70/App_Depot/main/orari-gare/motogp.json" // se il file è aperto dal computer
+];
 const titleCase=s=>(s||"").toLowerCase().replace(/(^|\s|-)(\p{L})/gu,(m,a,b)=>a+b.toUpperCase());
 const MGP_NAMES={Thailand:"della Thailandia",Brazil:"del Brasile",Argentina:"d'Argentina","United States":"delle Americhe",USA:"delle Americhe",Qatar:"del Qatar",Spain:"di Spagna",France:"di Francia",Italy:"d'Italia",Hungary:"d'Ungheria",Czechia:"della Repubblica Ceca","Czech Republic":"della Repubblica Ceca",Netherlands:"d'Olanda",Germany:"di Germania","Great Britain":"di Gran Bretagna","United Kingdom":"di Gran Bretagna",Austria:"d'Austria",Japan:"del Giappone",Indonesia:"d'Indonesia",Australia:"d'Australia",Malaysia:"della Malesia",Portugal:"del Portogallo","San Marino":"di San Marino",India:"d'India",Kazakhstan:"del Kazakistan"};
-function mgpName(e){const c=e.country&&e.country.name;const n=(e.name||"").toUpperCase();
+function mgpName(e){const c=e.country||"";const n=(e.name||"").toUpperCase();
   if(n.includes("VALENCIA")||n.includes("COMUNITAT"))return"GP di Valencia";
   if(n.includes("SAN MARINO")||n.includes("RIMINI"))return"GP di San Marino";
   if(n.includes("ARAG"))return"GP d'Aragona";
   if(n.includes("CATALUNYA")||n.includes("CATALONIA"))return"GP di Catalogna";
   if(n.includes("EMILIA"))return"GP dell'Emilia-Romagna";
-  return c&&MGP_NAMES[c]?"GP "+MGP_NAMES[c]:c?"GP "+c:titleCase(e.name);}
-async function loadMgpEvents(force){
-  const c=cacheGet("wip-mgp-ev");
-  if(c&&!force&&Date.now()-c.ts<MAX_AGE){data.motogp.events=c.e;data.motogp.src="api";data.motogp.when=new Date(c.ts);return;}
-  try{
-    const seasons=await getJSON(`${MB}/seasons`);const y=new Date().getFullYear();let ev=[];
-    for(const s of seasons.filter(s=>s.year===y||s.year===y+1)){
-      const list=await getJSON(`${MB}/events?seasonUuid=${s.id}`);
-      for(const e of list){if(e.test)continue;ev.push({id:e.id,gp:mgpName(e),loc:e.circuit?e.circuit.name:"",start:(e.date_start||"").slice(0,10),end:(e.date_end||"").slice(0,10)});}
-    }
-    if(!ev.length)throw new Error("vuoto");
-    data.motogp.events=ev;data.motogp.src="api";data.motogp.when=new Date();data.motogp.err=false;cacheSet("wip-mgp-ev",{ts:Date.now(),e:ev});
-  }catch(e){
-    if(c){data.motogp.events=c.e;data.motogp.src="cache";data.motogp.when=new Date(c.ts);}
-    else{data.motogp.events=null;data.motogp.src="fallback";}
-  }
+  return MGP_NAMES[c]?"GP "+MGP_NAMES[c]:c?"GP "+c:titleCase(e.name);}
+function useMgp(j){
+  const evs=(j.events||[]).map(e=>({gp:mgpName(e),loc:e.loc||"",start:new Date(e.start),end:new Date(e.end),sessions:e.sessions||[]}));
+  data.motogp.events=evs;
+  data.motogp.list=[].concat(...evs.map(e=>e.sessions.filter(s=>LABEL.motogp[s.code]).map(s=>({serie:"motogp",gp:e.gp,loc:e.loc,code:s.code,start:new Date(s.start)}))));
+  data.motogp.when=j.updated?new Date(j.updated):null;
 }
-async function loadMgpSessions(ev,force){
-  if(data.motogp.sessions[ev.id]&&!force)return;
-  const key="wip-mgp-s-"+ev.id,c=cacheGet(key);
-  if(c&&!force&&Date.now()-c.ts<MAX_AGE){data.motogp.sessions[ev.id]=unpack(c.s);return;}
-  try{
-    let cats;try{cats=await getJSON(`${MB}/categories?eventUuid=${ev.id}`);}catch(e){cats=[];}
-    if(!cats.length)throw new Error("categorie");
-    const out=[];
-    for(const cat of cats){
-      const n=(cat.name||"").toLowerCase();
-      const cls=n.startsWith("motogp")?"MGP":n.startsWith("moto2")?"M2":n.startsWith("moto3")?"M3":null;
-      if(!cls)continue;
-      const ss=await getJSON(`${MB}/sessions?eventUuid=${ev.id}&categoryUuid=${cat.id}`);
-      for(const s of ss){
-        if(!s.date)continue;let code=null;
-        if(cls==="MGP"){code=s.type==="RAC"?"RACE":s.type==="SPR"?"SPR":s.type==="WUP"?"WUP":s.type==="PR"?"PR":s.type==="Q"?"Q"+(s.number||""):s.type==="FP"?"FP"+(s.number||1):null;}
-        else if(s.type==="RAC")code=cls+"RACE";
-        if(code&&LABEL.motogp[code])out.push({serie:"motogp",gp:ev.gp,loc:ev.loc,code,start:new Date(s.date)});
-      }
-    }
-    if(!out.length)throw new Error("vuoto");
-    data.motogp.sessions[ev.id]=out;cacheSet(key,{ts:Date.now(),s:pack(out)});
-  }catch(e){
-    if(c)data.motogp.sessions[ev.id]=unpack(c.s);else data.motogp.err=true;
+async function loadMgp(force){
+  const c=cacheGet("wip-mgp");
+  if(c&&!force&&Date.now()-c.ts<MAX_AGE){useMgp(c.j);data.motogp.src="api";return;}
+  for(const u of MGP_SOURCES){
+    try{
+      const j=await getJSON(u+(force?"?t="+Date.now():""));
+      if(!j||!Array.isArray(j.events)||!j.events.length)throw new Error("vuoto");
+      useMgp(j);data.motogp.src="api";data.motogp.err=false;cacheSet("wip-mgp",{ts:Date.now(),j});return;
+    }catch(e){}
   }
+  if(c){useMgp(c.j);data.motogp.src="cache";data.motogp.when=new Date(c.ts);}
+  else{data.motogp.events=null;data.motogp.list=null;data.motogp.src="fallback";}
 }
 
 /* ---------- raccolta sessioni ---------- */
 const fallbackSessions=s=>FALLBACK.filter(r=>r[0]===s).map(r=>({serie:r[0],gp:r[1],loc:r[2],code:r[5],start:romeToDate(r[3],r[4])}));
 function allSessions(){
   const f1=data.f1.sessions||fallbackSessions("f1");
-  let mgp=[];
-  if(data.motogp.events){for(const id in data.motogp.sessions)mgp=mgp.concat(data.motogp.sessions[id]);}
+  const mgp=data.motogp.list||[];
   // le sessioni di riserva coprono i weekend che il servizio non ha restituito
   const fb=fallbackSessions("motogp").filter(s=>!mgp.some(m=>rome(m.start).date===rome(s.start).date));
   return f1.concat(mgp,fb);
@@ -366,9 +368,12 @@ function render(){
   for(const k of ["f1","motogp"]){
     if(!on[k])continue;
     const ss=inWin.filter(s=>s.serie===k);
+    const evIn=k==="motogp"&&data.motogp.events?data.motogp.events.find(e=>e.end>=W.from&&e.start<W.to):null;
     if(ss.length)cards.push(`<div class="ev" style="--c:var(--${k})"><div class="ser">${SERIES[k]}</div><div class="gp">${esc(ss[0].gp)}</div><div class="loc">${esc(ss[0].loc)}</div></div>`);
+    else if(evIn)cards.push(`<div class="ev" style="--c:var(--${k})"><div class="ser">${SERIES[k]}</div><div class="gp">${esc(evIn.gp)}</div><div class="loc">${esc(evIn.loc)} · orari non ancora pubblicati</div></div>`);
     else{
-      const nx=all.filter(s=>s.serie===k&&s.start>=W.to).sort((a,b)=>a.start-b.start)[0];
+      let nx=all.filter(s=>s.serie===k&&s.start>=W.to).sort((a,b)=>a.start-b.start)[0];
+      if(k==="motogp"&&data.motogp.events){const e=data.motogp.events.filter(e=>e.start>=W.to).sort((a,b)=>a.start-b.start)[0];if(e&&(!nx||e.start<nx.start))nx={gp:e.gp,start:e.start};}
       cards.push(`<div class="ev off" style="--c:var(--${k})"><div class="ser">${SERIES[k]}</div><div class="gp">Nessuna gara questo weekend</div><div class="loc">${nx?`Prossimo: ${esc(nx.gp)}, ${dayLabel(rome(nx.start).date).toLowerCase()}`:"Prossimo appuntamento non ancora in calendario"}</div></div>`);
     }
   }
@@ -411,9 +416,11 @@ function render(){
 
   // stato dei dati
   const fmtW=d=>d?d.toLocaleString("it-IT",{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit",timeZone:TZ}):"";
-  const st=(name,src,when,err)=>src==="api"&&!err?`<div><span class="ok">● ${name}</span>: orari aggiornati automaticamente (${fmtW(when)})</div>`
+  const stale=data.motogp.when&&Date.now()-data.motogp.when>3*86400000;
+  const st=(name,src,when,err)=>src==="api"&&!err&&!(name==="MotoGP"&&stale)?`<div><span class="ok">● ${name}</span>: orari aggiornati automaticamente (${name==="MotoGP"?"dati del ":""}${fmtW(when)})</div>`
+    :src==="api"&&!err?`<div><span class="warn">● ${name}</span>: dati del ${fmtW(when)}, l'aggiornamento automatico su GitHub sembra fermo</div>`
     :src==="cache"?`<div><span class="warn">● ${name}</span>: servizio non raggiungibile, uso gli orari salvati il ${fmtW(when)}</div>`
-    :`<div><span class="warn">● ${name}</span>: servizio non raggiungibile, uso gli orari inseriti nel file (fino all'8 novembre 2026)</div>`;
+    :`<div><span class="warn">● ${name}</span>: servizio non raggiungibile, uso gli orari inseriti nel file (fino al 29 novembre 2026)</div>`;
   document.getElementById("status").innerHTML=st("Formula 1",data.f1.src,data.f1.when,false)+st("MotoGP",data.motogp.src,data.motogp.when,data.motogp.err);
 }
 
@@ -422,15 +429,7 @@ let loading=false;
 async function ensure(force){
   if(loading)return;loading=true;
   try{
-    await Promise.all([loadF1(force),loadMgpEvents(force)]);
-    render();
-    if(data.motogp.events){
-      const W=windowRange(),from=rome(W.from).date,to=rome(W.to).date,today=rome(new Date()).date;
-      const evs=data.motogp.events.filter(e=>e.end>=from&&e.start<=to);
-      const upcoming=data.motogp.events.filter(e=>e.end>=today).sort((a,b)=>a.start<b.start?-1:1)[0];
-      if(upcoming&&!evs.includes(upcoming))evs.push(upcoming);
-      for(const e of evs)await loadMgpSessions(e,force);
-    }
+    await Promise.all([loadF1(force),loadMgp(force)]);
   }finally{loading=false;render();}
 }
 document.querySelectorAll(".filters button").forEach(b=>b.addEventListener("click",()=>{on[b.dataset.s]=!on[b.dataset.s];savePrefs();render();}));

@@ -1,0 +1,40 @@
+name: Aggiorna orari MotoGP
+
+on:
+  schedule:
+    - cron: "17 */6 * * *"   # ogni 6 ore
+  workflow_dispatch:          # pulsante "Run workflow" nella scheda Actions
+  push:                       # parte subito anche quando cambi lo script
+    branches: [main]
+    paths:
+      - ".github/workflows/motogp.yml"
+      - ".github/scripts/motogp.mjs"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: motogp-data
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Scarica orari da motogp.com
+        run: node .github/scripts/motogp.mjs
+      - name: Salva se cambiati
+        run: |
+          if git diff --quiet -- orari-gare/motogp.json && git ls-files --error-unmatch orari-gare/motogp.json >/dev/null 2>&1; then
+            echo "Nessun cambiamento"; exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898699+github-actions[bot]@users.noreply.github.com"
+          git add orari-gare/motogp.json
+          git commit -m "Aggiorna orari MotoGP"
+          git pull --rebase
+          git push
