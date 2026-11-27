@@ -68,6 +68,11 @@ header h1{font-family:var(--display);font-weight:800;font-size:2.4rem;letter-spa
 .pill.est{background:transparent;color:var(--tv8);border:1px dashed var(--tv8)}
 .pill strong{font-family:var(--mono)}
 .pill.live{background:var(--live);color:#fff}
+.cal{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.cal a{font:600 .72rem var(--body);color:var(--fg);text-decoration:none;border:1px solid var(--line);background:var(--surface);padding:3px 8px;border-radius:4px;white-space:nowrap}
+.cal a:hover{border-color:var(--fg)}
+.cal a:focus-visible{outline:2px solid var(--fg);outline-offset:2px}
+.cal a svg{width:11px;height:11px;vertical-align:-1px;margin-right:4px}
 .row.done{opacity:.5}
 .row.done .t{text-decoration:line-through;text-decoration-thickness:1px}
 .empty{color:var(--muted);padding:14px 0;border-bottom:1px solid var(--line)}
@@ -350,6 +355,24 @@ function tv8For(s){
 /* ---------- render ---------- */
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 function windowRange(){const thu=addDays(baseThursday(),7*weekOffset);return{thu,from:romeToDate(thu,"00:00"),to:romeToDate(addDays(thu,4),"12:00")};}
+/* ---------- Google Calendar ----------
+   Apre Google Calendar con l'evento già compilato: basta premere "Salva". */
+const gcalT=d=>d.toISOString().replace(/[-:]/g,"").replace(/\.\d{3}/,"");
+function gcalLink(title,start,min,details,loc){
+  const q=new URLSearchParams({action:"TEMPLATE",text:title,dates:gcalT(start)+"/"+gcalT(plus(start,min)),details,location:loc||"",ctz:TZ});
+  return "https://calendar.google.com/calendar/render?"+q.toString();
+}
+const CAL_ICON='<svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1.5" y="2.5" width="13" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M1.5 6.5h13M5 1v3M11 1v3" stroke="currentColor" stroke-width="1.5"/></svg>';
+function calButtons(s){
+  const name=`${s.serie==="f1"?"F1 · ":""}${LABEL[s.serie][s.code]} — ${s.gp}`;
+  const min=DUR[s.code]||60;
+  const tvNote=s.tv?`TV8 ${s.tv.k} alle ${hm(s.tv.d)}${s.tv.conf?"":" (orario stimato, da verificare)"}.`:"Non trasmesso su TV8.";
+  let h=`<a href="${gcalLink(name,s.start,min,"Diretta Sky Sport / NOW alle "+hm(s.start)+". "+tvNote,s.loc)}" target="_blank" rel="noopener" aria-label="Aggiungi a Google Calendar: ${esc(name)}, diretta Sky">${CAL_ICON}Calendario</a>`;
+  if(s.tv&&(s.tv.k!=="diretta"||Math.abs(s.tv.d-s.start)>60000))
+    h+=`<a href="${gcalLink("TV8 · "+name,s.tv.d,min,"In "+s.tv.k+" su TV8 (canale 8)"+(s.tv.conf?".":", orario stimato da verificare sulla guida TV.")+" Diretta Sky Sport / NOW alle "+hm(s.start)+".",s.loc)}" target="_blank" rel="noopener" aria-label="Aggiungi a Google Calendar: ${esc(name)}, su TV8">${CAL_ICON}TV8</a>`;
+  return `<div class="cal">${h}</div>`;
+}
+const setHTML=(id,html)=>{const el=document.getElementById(id);if(el._h!==html){el.innerHTML=html;el._h=html;}};
 function render(){
   const now=new Date(),W=windowRange();
   const fri=addDays(W.thu,1),sun=addDays(W.thu,3);
@@ -378,12 +401,12 @@ function render(){
     }
   }
   if(on.sbk)cards.push(`<div class="ev off" style="--c:var(--sbk)"><div class="ser">Superbike</div><div class="gp">Orari non disponibili in automatico</div><div class="loc">La Superbike non offre un servizio dati pubblico. Calendario su <a href="https://www.worldsbk.com/it/calendar" target="_blank" rel="noopener">worldsbk.com</a></div></div>`);
-  document.getElementById("events").innerHTML=cards.join("");
+  setHTML("events",cards.join(""));
 
   // giornate
   const list=inWin.filter(s=>on[s.serie]).map(s=>({...s,tv:tv8For(s)})).filter(s=>!onlyTv8||s.tv).sort((a,b)=>a.start-b.start);
   const days=[...new Set(list.map(s=>rome(s.start).date))];
-  document.getElementById("days").innerHTML=days.length?days.map(d=>{
+  setHTML("days",days.length?days.map(d=>{
     const rows=list.filter(s=>rome(s.start).date===d).map(s=>{
       const dur=(DUR[s.code]||60)*60000,live=now>=s.start&&now<s.start.getTime()+dur,done=now>=s.start.getTime()+dur;
       let tv;
@@ -394,10 +417,10 @@ function render(){
       return `<div class="row ${done?"done":""}" style="--c:var(--${s.serie})">
         <div class="t">${hm(s.start)}</div>
         <div class="s"><b>${s.serie==="f1"?"F1 · ":""}${LABEL[s.serie][s.code]}</b><span>${esc(s.gp)}</span></div>
-        <div class="tv">${live?'<span class="pill live">In corso</span>':""}${tv}</div></div>`;
+        <div class="tv">${live?'<span class="pill live">In corso</span>':""}${tv}${done?"":calButtons(s)}</div></div>`;
     }).join("");
     return `<section class="day"><h2>${dayLabel(d)}</h2>${rows}</section>`;
-  }).join(""):`<div class="empty">${inWin.length?"Nessuna sessione con i filtri attivi.":"Nessuna sessione di F1 o MotoGP in questo weekend."}</div>`;
+  }).join(""):`<div class="empty">${inWin.length?"Nessuna sessione con i filtri attivi.":"Nessuna sessione di F1 o MotoGP in questo weekend."}</div>`);
 
   // prossima sessione (su tutto il calendario disponibile)
   const cand=[];
