@@ -267,7 +267,7 @@ function raceHTML(r,now){
   if(!r.ok) tags.push(`<span class="tag">orario indicativo</span>`);
   if(s==="now") tags.push(`<span class="tag st">● IN CORSO</span>`);
   if(s==="done") tags.push(`<span class="tag">conclusa</span>`);
-  const gc = s==="done" ? "" : `<a class="gcal" href="${gcalURL(r)}" target="_blank" rel="noopener" title="Aggiungi questa gara a Google Calendar">📅 Google Calendar</a>`;
+  const gc = parts(r).filter(m=>m.end>now).map(m=>`<a class="gcal" href="${gcalURL(r,m)}" target="_blank" rel="noopener" title="Aggiungi a Google Calendar">📅 Google Calendar${m.lbl?" · "+m.lbl:""}</a>`).join(" ");
   return `<div class="race ${r.g} ${s}">
     <div class="time">${r.r1}${t2}</div>
     <div class="body"><div class="name">${SPN[r.sp]} ${r.g==="W"?"femminile":"maschile"}</div>
@@ -275,16 +275,25 @@ function raceHTML(r,now){
     <div class="tags">${tags.join("")}</div>${gc}</div></div>`;
 }
 
-/* ---- link "aggiungi a Google Calendar" per la singola gara ---- */
-function gcalURL(r){
-  const z=d=>d.toISOString().replace(/[-:]/g,"").replace(/\.\d{3}/,"");
-  const title=`⛷️ ${SPN[r.sp]} ${r.g==="W"?"femminile":"maschile"} – ${r.l}`;
-  const det=(r.r2?`1ª manche ${r.r1} · 2ª manche ${r.r2}`:`Gara unica ore ${r.r1}`)
+/* ---- eventi di calendario: uno per manche (gigante e slalom) o uno per la gara unica ---- */
+const MANCHE_MIN=75, GARA_MIN=100;
+function parts(r){
+  if(!r.r2) return [{lbl:"",n:0,start:r.start,end:new Date(r.start.getTime()+GARA_MIN*60000)}];
+  const s1=r.start, s2=at(r.d,r.r2);
+  const e1=new Date(Math.min(s1.getTime()+MANCHE_MIN*60000, s2.getTime()));
+  return [{lbl:"1ª manche",n:1,start:s1,end:e1},{lbl:"2ª manche",n:2,start:s2,end:new Date(s2.getTime()+MANCHE_MIN*60000)}];
+}
+function evTitle(r,m){return `⛷️ ${SPN[r.sp]} ${r.g==="W"?"femminile":"maschile"}${m.n?" · "+m.lbl:""} – ${r.l}`;}
+function evDetails(r,m){
+  return (m.n?(m.n===1?`1ª manche ${r.r1} (la 2ª alle ${r.r2})`:`2ª manche ${r.r2} (la 1ª alle ${r.r1})`):`Gara unica ore ${r.r1}`)
     +`\nTV: ${r.tv}${r.tvok?"":" (da confermare)"} · Eurosport 1 · RaiPlay`
     +(r.ok?"":"\nOrario indicativo: verificare qualche giorno prima.")
     +"\nCoppa del Mondo di sci alpino 2026/27";
-  const p=new URLSearchParams({action:"TEMPLATE",text:title,dates:z(r.start)+"/"+z(r.end),
-    details:det,location:`${r.l} (${r.n})`,ctz:"Europe/Rome"});
+}
+const zTime=d=>d.toISOString().replace(/[-:]/g,"").replace(/\.\d{3}/,"");
+function gcalURL(r,m){
+  const p=new URLSearchParams({action:"TEMPLATE",text:evTitle(r,m),dates:zTime(m.start)+"/"+zTime(m.end),
+    details:evDetails(r,m),location:`${r.l} (${r.n})`,ctz:"Europe/Rome"});
   return "https://calendar.google.com/calendar/render?"+p.toString();
 }
 
@@ -362,11 +371,12 @@ document.getElementById("today").onclick=()=>{curWeek=defaultWeek();render();};
 document.getElementById("ics").onclick=()=>{
   const now=new Date(); const z=d=>d.toISOString().replace(/[-:]/g,"").replace(/\.\d{3}/,"");
   let s="BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//sci-wc//IT\r\nCALSCALE:GREGORIAN\r\n";
-  R.filter(visible).filter(r=>r.end>now).forEach(r=>{
-    s+="BEGIN:VEVENT\r\nUID:sciwc-"+r.d+"-"+r.g+"-"+r.sp+"@app\r\nDTSTAMP:"+z(now)+"\r\nDTSTART:"+z(r.start)+"\r\nDTEND:"+z(r.end)+"\r\n";
-    s+="SUMMARY:"+SPN[r.sp]+" "+(r.g==="W"?"F":"M")+" "+r.l+"\r\n";
-    s+="DESCRIPTION:"+(r.r2?"1ª manche "+r.r1+" - 2ª manche "+r.r2:"Gara unica "+r.r1)+" · TV: "+r.tv+" / Eurosport 1"+(r.ok?"":" · orario indicativo")+"\r\nEND:VEVENT\r\n";
-  });
+  R.filter(visible).forEach(r=>parts(r).filter(m=>m.end>now).forEach(m=>{
+    s+="BEGIN:VEVENT\r\nUID:sciwc-"+r.d+"-"+r.g+"-"+r.sp+"-"+m.n+"@app\r\nDTSTAMP:"+zTime(now)+"\r\nDTSTART:"+zTime(m.start)+"\r\nDTEND:"+zTime(m.end)+"\r\n";
+    s+="SUMMARY:"+evTitle(r,m)+"\r\n";
+    s+="LOCATION:"+r.l+" ("+r.n+")\r\n";
+    s+="DESCRIPTION:"+evDetails(r,m).replace(/\n/g,"\\n")+"\r\nEND:VEVENT\r\n";
+  }));
   s+="END:VCALENDAR\r\n";
   const a=document.createElement("a"); a.href=URL.createObjectURL(new Blob([s],{type:"text/calendar"})); a.download="coppa-del-mondo-sci-2026-27.ics"; document.body.appendChild(a); a.click(); a.remove();
 };
