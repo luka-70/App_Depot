@@ -52,6 +52,9 @@ header p{margin:0;color:var(--mut);font-size:13px}
 .tag.night{color:#c9b8ff;border-color:#4a3f7a}
 .tag.fin{color:var(--warn);border-color:#6b4f1f}
 .tag.st{color:var(--live);border-color:#6b2a2a}
+.gcal{display:inline-block;margin-top:8px;font-size:12.5px;color:#9cc6ff;text-decoration:none;
+  border:1px solid #2c4a6e;border-radius:8px;padding:4px 9px;background:#0f1a27}
+.gcal:hover{background:#18304d}
 .empty{color:var(--mut);text-align:center;padding:24px 0}
 .wc{background:linear-gradient(90deg,#2a2140,#1b2b40);border:1px solid #4a3f7a;border-radius:12px;padding:12px;margin:8px 0}
 .foot{margin-top:24px;font-size:12.5px;color:var(--mut);border-top:1px solid var(--line);padding-top:12px}
@@ -97,7 +100,7 @@ header p{margin:0;color:var(--mut);font-size:13px}
 
 <div class="foot">
   <div class="tools">
-    <button id="ics">📅 Esporta nel calendario (.ics)</button>
+    <button id="ics">📅 Esporta tutte le gare filtrate (.ics)</button>
   </div>
   <p><b>TV in chiaro:</b> tutte le gare sono trasmesse dalla Rai, su <b>Rai 2</b> o <b>Rai Sport HD</b> (canale 58 DTT, 227 Sky) a seconda del palinsesto, e in streaming su RaiPlay. A pagamento su <b>Eurosport 1</b> (anche via discovery+, HBO Max, DAZN, Sky Go/NOW).</p>
   <p><b>Bordo tratteggiato = canale da confermare.</b> La Rai decide tra Rai 2 e Rai Sport pochi giorni prima: l'etichetta indica il canale più probabile.</p>
@@ -264,11 +267,25 @@ function raceHTML(r,now){
   if(!r.ok) tags.push(`<span class="tag">orario indicativo</span>`);
   if(s==="now") tags.push(`<span class="tag st">● IN CORSO</span>`);
   if(s==="done") tags.push(`<span class="tag">conclusa</span>`);
+  const gc = s==="done" ? "" : `<a class="gcal" href="${gcalURL(r)}" target="_blank" rel="noopener" title="Aggiungi questa gara a Google Calendar">📅 Google Calendar</a>`;
   return `<div class="race ${r.g} ${s}">
     <div class="time">${r.r1}${t2}</div>
     <div class="body"><div class="name">${SPN[r.sp]} ${r.g==="W"?"femminile":"maschile"}</div>
     <div class="loc">${FLAG[r.n]||""} ${r.l} (${r.n})</div>
-    <div class="tags">${tags.join("")}</div></div></div>`;
+    <div class="tags">${tags.join("")}</div>${gc}</div></div>`;
+}
+
+/* ---- link "aggiungi a Google Calendar" per la singola gara ---- */
+function gcalURL(r){
+  const z=d=>d.toISOString().replace(/[-:]/g,"").replace(/\.\d{3}/,"");
+  const title=`⛷️ ${SPN[r.sp]} ${r.g==="W"?"femminile":"maschile"} – ${r.l}`;
+  const det=(r.r2?`1ª manche ${r.r1} · 2ª manche ${r.r2}`:`Gara unica ore ${r.r1}`)
+    +`\nTV: ${r.tv}${r.tvok?"":" (da confermare)"} · Eurosport 1 · RaiPlay`
+    +(r.ok?"":"\nOrario indicativo: verificare qualche giorno prima.")
+    +"\nCoppa del Mondo di sci alpino 2026/27";
+  const p=new URLSearchParams({action:"TEMPLATE",text:title,dates:z(r.start)+"/"+z(r.end),
+    details:det,location:`${r.l} (${r.n})`,ctz:"Europe/Rome"});
+  return "https://calendar.google.com/calendar/render?"+p.toString();
 }
 
 function worldsHTML(){return `<div class="wc"><b>🌍 ${WORLDS.txt}</b><br><span style="color:var(--mut);font-size:13px">1–14 febbraio 2027 · ${WORLDS.sub}</span></div>`;}
